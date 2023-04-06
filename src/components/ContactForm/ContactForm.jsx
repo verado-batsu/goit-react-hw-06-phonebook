@@ -1,11 +1,11 @@
-import { nanoid } from 'nanoid';
-import PropTypes from 'prop-types';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as yup from 'yup';
 
 import { FormStyled } from 'components/ContactForm/ContactForm.styled';
 
 import { isValidName, isValidPhone } from './addMethodContactFormYup';
+import { useDispatch } from 'react-redux';
+import { addContact } from 'redux/actions';
 
 const nameRegex = "^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$";
 const invalidNameMessage =
@@ -15,7 +15,6 @@ yup.addMethod(yup.string, 'isValidName', isValidName);
 
 yup.addMethod(yup.string, 'isValidPhone', isValidPhone);
 
-// const phoneRegex = /^(\+?\d[- .]*){6,13}\d$/;
 const phoneRegex =
     /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/;
 const invalidPhoneMessage =
@@ -30,21 +29,18 @@ const schema = yup.object({
         .max(12)
         .required(),
 });
-export function ContactForm({ getDataFromForm }) {
+
+export function ContactForm() {
+    const dispatch = useDispatch();
+
     const initialValues = {
         name: '',
         number: '',
     };
 
     const handleSubmit = (values, { resetForm }) => {
-        const contact = {
-            ...values,
-            id: nanoid(),
-        };
-
+        dispatch(addContact(values));
         resetForm();
-
-        getDataFromForm(contact);
     };
 
     return (
@@ -69,7 +65,3 @@ export function ContactForm({ getDataFromForm }) {
         </Formik>
     );
 }
-
-ContactForm.propTypes = {
-    getDataFromForm: PropTypes.func.isRequired,
-};
